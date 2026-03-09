@@ -20,6 +20,30 @@ public:
         });
     }
 
+    SliderNums* get_nums_slider(QVector2D pos){
+        // alfa slider
+        auto slider_nums = new SliderNums();
+        createSlider(slider_nums, pos);
+
+        // set a new alfa, when the slider will change
+        QObject::connect(slider_nums, &SliderNums::valueChanged,
+                         m_window, &CubeWindow::set_nums);
+
+        return slider_nums;
+    }
+
+    SliderDists* get_dists_slider(QVector2D pos){
+        // alfa slider
+        auto slider_dists = new SliderDists();
+        createSlider(slider_dists, pos);
+
+        // set a new alfa, when the slider will change
+        QObject::connect(slider_dists, &SliderNums::valueChanged,
+                         m_window, &CubeWindow::set_dists);
+
+        return slider_dists;
+    }
+
     SliderAlfa* get_alfa_slider(QVector2D pos){
         // alfa slider
         SliderAlfa* slider_alfa = new SliderAlfa();

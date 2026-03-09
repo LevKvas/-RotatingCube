@@ -9,6 +9,8 @@ out vec3 normal;
 
 uniform mat4 matrix;
 uniform mat4 rot_matrix;
+uniform mat4 matrixShift;
+
 uniform float morphFactor;
 
 uniform int is_use_lamp;
@@ -42,7 +44,7 @@ void main() {
 
   normal = normalize(mat3(rot_matrix) * mix(normalAttr, spherePos, morphFactor));
 
-  gl_Position = matrix * vec4(worldPos, 1.0);
+  gl_Position = matrix * matrixShift * vec4(worldPos, 1.0);
 
   vec3 N = normalize(normal); // normal of surface
   vec3 V = normalize(CameraPos - worldPos); // vector on camera

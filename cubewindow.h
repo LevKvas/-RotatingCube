@@ -10,6 +10,7 @@
 #include <QLabel>
 #include <vector>
 #include <QSlider>
+#include <QElapsedTimer>
 
 #include "ui_widgets.h"
 
@@ -67,6 +68,14 @@ public:
         axis.setZ(z);
     }
 
+    void set_nums(int num){
+        cubes_num = num;
+    }
+
+    void set_dists(float dist){
+        cubes_dists = dist;
+    }
+
     void set_material(float k_a_, float k_d_, float k_s_){
         k_a = k_a_;
         k_d = k_d_;
@@ -117,6 +126,7 @@ private:
     GLint m_CameraPos = -1;
     GLint m_DirLightDirUniform = -1;
     GLint m_matrixRotUniform = -1;
+    GLint m_matrixShift = -1;
 
     // use
     GLint m_lampIsUse = -1;
@@ -134,6 +144,9 @@ private:
     QVector3D color{};
     QVector3D axis{};
 
+    int cubes_num = 1;
+    float cubes_dists = 2.0;
+
     int m_frame = 0;
 
     int N = 20; // step of grid
@@ -149,9 +162,28 @@ private:
         const QVector3D& normal,
         size_t color_size);
 
+    void calc_fps(){
+        m_frameCount++;
+
+        qint64 elapsed = m_fpsTimer.elapsed(); // time passed in ms
+
+        // update FPS every second
+        if (elapsed - m_lastFPSTime >= 1000) {
+            m_currentFPS = (m_frameCount * 1000.0) / (elapsed - m_lastFPSTime);
+            m_frameCount = 0;
+            m_lastFPSTime = elapsed;
+        }
+    }
+
     float k_a{};
     float k_d{};
     float k_s{};
+
+    // fps
+    QElapsedTimer m_fpsTimer;      // timer to calc time
+    int m_frameCount = 0;          // counter slides
+    double m_currentFPS = 0.0;     // current FPS
+    qint64 m_lastFPSTime = 0;
 };
 
 

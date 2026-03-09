@@ -6,12 +6,12 @@
 #include <QLineEdit>
 #include <QColorDialog>
 
-SliderStep::SliderStep(QWidget *parent): QDialog(parent){
+SliderStep::SliderStep(QWidget *parent): Slider(parent) {
     setWindowTitle("Set grid scale");
     setModal(false); // do not block another window
 
     m_slider = new QSlider(Qt::Horizontal);
-    m_slider->setRange(1, 60);
+    m_slider->setRange(1, 200);
     m_slider->setValue(10);
 
     m_label = new QLabel("N = 10", this);
@@ -26,7 +26,7 @@ SliderStep::SliderStep(QWidget *parent): QDialog(parent){
     layout->addWidget(m_slider);
 }
 
-SliderAlfa::SliderAlfa(QWidget *parent): QDialog(parent){
+SliderAlfa::SliderAlfa(QWidget *parent): Slider(parent) {
     setWindowTitle("Set alfa");
     setModal(false); // do not block another window
 
@@ -34,11 +34,11 @@ SliderAlfa::SliderAlfa(QWidget *parent): QDialog(parent){
     m_slider->setRange(0, 100);
     m_slider->setValue(10);
 
-    m_label = new QLabel("alfa = 0", this);
+    m_label = new QLabel("alfa = 0.10", this);
 
     connect(m_slider, &QSlider::valueChanged, this, [this](int val) {
         float floatValue = val / 100.0f;
-        m_label->setText(QString("alfa = %1").arg(val));
+        m_label->setText(QString("alfa = %1").arg(floatValue, 0, 'f', 2));
         emit valueChanged(floatValue);
     });
 
@@ -47,6 +47,46 @@ SliderAlfa::SliderAlfa(QWidget *parent): QDialog(parent){
     layout->addWidget(m_slider);
 }
 
+SliderNums::SliderNums(QWidget *parent): Slider(parent){
+    setWindowTitle("Set num cubes");
+    setModal(false); // do not block another window
+
+    m_slider = new QSlider(Qt::Horizontal);
+    m_slider->setRange(1, 300);
+    m_slider->setValue(1);
+
+    m_label = new QLabel("Cube Nums = 1", this);
+
+    connect(m_slider, &QSlider::valueChanged, this, [this](int val) {
+        m_label->setText(QString("Cube Nums = %1").arg(val));
+        emit valueChanged(val);
+    });
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(m_label);
+    layout->addWidget(m_slider);
+}
+
+SliderDists::SliderDists(QWidget *parent): Slider(parent){
+    setWindowTitle("Set dists between cubes");
+    setModal(false); // do not block another window
+
+    m_slider = new QSlider(Qt::Horizontal);
+    m_slider->setRange(0, 30);
+    m_slider->setValue(20);
+
+    m_label = new QLabel("Cube dists = 2.0", this);
+
+    connect(m_slider, &QSlider::valueChanged, this, [this](int val) {
+        float floatValue = val / 10.0f;
+        m_label->setText(QString("Cube dists = %1").arg(floatValue, 0, 'f', 1));
+        emit valueChanged(floatValue);
+    });
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(m_label);
+    layout->addWidget(m_slider);
+}
 
 void InputCoors::onOkClicked()
 {
@@ -126,6 +166,7 @@ bool InputCoors::ask_coors(const QString& info){
 
     return exec() == QDialog::Accepted;
 }
+
 
 void LightSources::set_direction(){
     auto input_coors = InputCoors(InputCoors::Mode::Mode3D);

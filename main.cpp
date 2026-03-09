@@ -22,11 +22,16 @@ int main(int argc, char *argv[])
     // set axis
     manager.set_axis_rot();
 
+    // nums and dists sliders
+    manager.get_nums_slider(QVector2D(10, 30))->show();
+    manager.get_dists_slider(QVector2D(10, 130))->show();
+
     // alfa slider
-    manager.get_alfa_slider(QVector2D(10, 200))->show();
+    manager.get_alfa_slider(QVector2D(10, 230))->show();
 
     // N slider
-    manager.get_step_slider(QVector2D(10, 30))->show();
+    manager.get_step_slider(QVector2D(10, 330))->show();
+
 
     // all check boxes
     manager.get_check_box(lamp, QVector2D(1000, 100), QVector2D(30, 40))->show();

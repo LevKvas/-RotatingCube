@@ -10,7 +10,6 @@
 #include <QMessageBox>
 #include <QColorDialog>
 
-
 // ctor
 OpenGLWindow::OpenGLWindow(QWindow *parent)
     : QWindow(parent)
@@ -152,6 +151,7 @@ void CubeWindow::initialize()
     m_matrixUniform = m_program->uniformLocation("matrix");
     m_matrixRotUniform = m_program->uniformLocation("rot_matrix");
     m_morphFactorUniform = m_program->uniformLocation("morphFactor");
+    m_matrixShift = m_program->uniformLocation("matrixShift");
 
     if (m_matrixUniform == -1 || m_morphFactorUniform == -1) {
         qWarning() << "Failed to get uniform location!";
@@ -173,6 +173,12 @@ void CubeWindow::initialize()
     m_DirectionalLightIsUse = m_program->uniformLocation("is_use_DirectionalLight");
 
     m_CameraPos = m_program->uniformLocation("CameraPos");
+
+    //fps
+    m_fpsTimer.start();
+    m_lastFPSTime = 0;
+    m_frameCount = 0;
+
 }
 
 std::vector<GLfloat> CubeWindow::add_colors_and_normals(
@@ -368,16 +374,37 @@ void CubeWindow::render()
                           reinterpret_cast<void *>(3 * sizeof(GLfloat))); // shift on 3 floats
 
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
-                                reinterpret_cast<void*>(6 * sizeof(GLfloat)));
+                          reinterpret_cast<void*>(6 * sizeof(GLfloat)));
+
+    int maxPerRow = 20; // max cubes in row
+    float cubeSize = 0.1f; // to scale cube
+
+    float startX = -14.0f;
+    float startY = 10.0f;
+
+    // to draw several cubes
+    for (int i = 0; i < cubes_num; ++i) {
+        QMatrix4x4 modelMatrix;
+
+        modelMatrix.scale(cubeSize, cubeSize, cubeSize);
+
+        // to calc row and col
+        int row = i / maxPerRow;
+        int col = i % maxPerRow;
+
+        float xOffset = startX + col * cubes_dists;
+        float yOffset = startY - row * cubes_dists;
+
+        modelMatrix.translate(xOffset, yOffset, 0.0f);
+
+        m_program->setUniformValue(m_matrixShift, modelMatrix);
+
+        glDrawElements(GL_TRIANGLES, index_buff_size, GL_UNSIGNED_SHORT, nullptr);
+    }
 
 
     glEnable(GL_CULL_FACE); // include edge cutting
     glCullFace(GL_BACK); // do not draw back edges
-
-    glDrawElements(GL_TRIANGLES,
-                   index_buff_size,
-                   GL_UNSIGNED_SHORT,
-                   nullptr);
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
@@ -415,6 +442,11 @@ void CubeWindow::render()
             light->show();
         }
     }
+
+    calc_fps();
+    // update Title
+    setTitle(QString("Plasma Calc — FPS: %1")
+                       .arg(m_currentFPS, 0, 'f', 1));
 
     ++m_frame;
 }
