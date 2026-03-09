@@ -130,7 +130,7 @@ bool InputCoors::ask_coors(const QString& info){
 void LightSources::set_direction(){
     auto input_coors = InputCoors(InputCoors::Mode::Mode3D);
 
-    if (input_coors.ask_coors("Направление") && input_coors.get_z().has_value()) {
+    if (input_coors.ask_coors("Направление к источнику") && input_coors.get_z().has_value()) {
         direction = QVector3D(input_coors.get_x(), input_coors.get_y(), *input_coors.get_z()).normalized();
     } else {
         direction = QVector3D(1, 1, 1).normalized();
@@ -143,17 +143,13 @@ void LightSources::set_pos(){
     qDebug("input coors was created");
 
     if (input_coors.ask_coors("Позиция") && input_coors.get_z().has_value()) {
-        float scale = 2.0f / 200.0f;
-
         pos = QVector3D(
-            (input_coors.get_x() - 50.0f) * scale,
-            (input_coors.get_y() - 50.0f) * scale,
-            (input_coors.get_z().value_or(50.0f) - 50.0f) * scale
+            input_coors.get_x(),
+            input_coors.get_y(),
+            input_coors.get_z().value()
             );
-        //pos = QVector3D(input_coors.get_x(), input_coors.get_y(), *input_coors.get_z());
     } else {
-        pos = {0.5f, 0.5f, 0.5f};
-        //pos = {100, 100, 100};
+        pos = {3.0f, 0.0f, 4.0f};
     }
 }
 
@@ -185,8 +181,6 @@ void LightSources::load_image(){
     if (!pixmap.isNull()) {
         QPixmap transparentPixmap = makeTransparent(pixmap, Qt::white, 20);
         label->setPixmap(transparentPixmap.scaled(50, 50, Qt::KeepAspectRatio));
-    } else {
-        label->setText("Не удалось загрузить изображение");
     }
 }
 

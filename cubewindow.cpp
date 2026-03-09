@@ -157,7 +157,7 @@ void CubeWindow::initialize()
         qWarning() << "Failed to get uniform location!";
     }
 
-    m_lampPosUniform = m_program->uniformLocation("PosLamp");
+    m_lampPosUniform = m_program->uniformLocation("posLamp");
     m_lampIsUse = m_program->uniformLocation("is_use_lamp");
     m_SpotLightPosUniform = m_program->uniformLocation("PosSpotLight");
 
@@ -435,8 +435,6 @@ std::vector<QVector3D> CubeWindow::get_grid(QVector3D v1, QVector3D v2,
     auto v_1_norm = v1;
 
     auto v_2_norm = v2;
-
-    auto v_3_norm = v3;
 
     auto v_4_norm = v4;
 

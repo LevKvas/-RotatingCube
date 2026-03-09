@@ -27,7 +27,7 @@ uniform vec3 CameraPos;
 // constants
 uniform float a = 0.1;
 uniform float b = 0.1;
-uniform float c = 1.0;
+uniform float c = 0.05;
 
 uniform int n = 32; // degree of shiness
 
@@ -39,9 +39,10 @@ void main() {
 
   vec4 temp = (rot_matrix * vec4(morphedPos, 1.0)); // mult on rot matrix
   worldPos = temp.xyz;
-  normal = normalAttr;
 
-  gl_Position = matrix * rot_matrix * vec4(morphedPos, 1.0);
+  normal = normalize(mat3(rot_matrix) * mix(normalAttr, spherePos, morphFactor));
+
+  gl_Position = matrix * vec4(worldPos, 1.0);
 
   vec3 N = normalize(normal); // normal of surface
   vec3 V = normalize(CameraPos - worldPos); // vector on camera
@@ -67,6 +68,15 @@ void main() {
   float f_att_spotLight = 1.0 / (a + b * d_SpotLight + c * d_SpotLight * d_SpotLight);
   vec3 L_SpotLight = normalize(PosSpotLight - worldPos); // vector on spotLight
 
+  // Проверка угла конуса
+  vec3 spotDirection = normalize(-SpotLightDir);  // направление ОТ источника
+  float theta = dot(L_SpotLight, spotDirection);
+  float cutoff = 0.95;  // cos(18°) — угол конуса
+
+  if (theta < cutoff) {
+      I_spotLight = vec3(0.0);  // вне конуса — нет света
+  }
+
   vec3 R_SpotLight = reflect(-L_SpotLight, N);
   float cosAlpha_spot = max(dot(R_SpotLight, V), 0.0);
   float cosTheta_spot = max(dot(N, L_SpotLight), 0.0);
@@ -74,8 +84,8 @@ void main() {
   I_spotLight = f_att_spotLight * colAttr.rgb * (cosTheta_spot + pow(cosAlpha_spot, n));
 
   // for direct
-  float f_att_direct = 1 / a;
-  vec3 L_direct = normalize(-DirLightDir);
+  float f_att_direct = 1;
+  vec3 L_direct = normalize(DirLightDir);
 
   float cosTheta_direct = max(dot(N, L_direct), 0.0);
 
