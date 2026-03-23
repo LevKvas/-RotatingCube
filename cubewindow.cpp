@@ -249,12 +249,12 @@ void CubeWindow:: rebuildBuffers(){
             ));
     }
 
-    auto v_c_1 = add_colors_and_normals(get_grid(p[0], p[1], p[2], p[3], N), colors, -faceNormals[0], colors.size());
-    auto v_c_2 = add_colors_and_normals(get_grid(p[4], p[7], p[6], p[5], N), colors, -faceNormals[1], colors.size());
-    auto v_c_3 = add_colors_and_normals(get_grid(p[4], p[0], p[3], p[7], N), colors, -faceNormals[2], colors.size());
-    auto v_c_4 = add_colors_and_normals(get_grid(p[1], p[5], p[6], p[2], N), colors, -faceNormals[3], colors.size());
-    auto v_c_5 = add_colors_and_normals(get_grid(p[4], p[5], p[1], p[0], N), colors, -faceNormals[4], colors.size());
-    auto v_c_6 = add_colors_and_normals(get_grid(p[3], p[2], p[6], p[7], N), colors, -faceNormals[5], colors.size());
+    auto v_c_1 = add_colors_and_normals(get_grid(p[0], p[1], p[2], p[3], N), colors, faceNormals[0], colors.size());
+    auto v_c_2 = add_colors_and_normals(get_grid(p[4], p[7], p[6], p[5], N), colors, faceNormals[1], colors.size());
+    auto v_c_3 = add_colors_and_normals(get_grid(p[4], p[0], p[3], p[7], N), colors, faceNormals[2], colors.size());
+    auto v_c_4 = add_colors_and_normals(get_grid(p[1], p[5], p[6], p[2], N), colors, faceNormals[3], colors.size());
+    auto v_c_5 = add_colors_and_normals(get_grid(p[4], p[5], p[1], p[0], N), colors, faceNormals[4], colors.size());
+    auto v_c_6 = add_colors_and_normals(get_grid(p[3], p[2], p[6], p[7], N), colors, faceNormals[5], colors.size());
 
     vertices_colors.insert(vertices_colors.end(), v_c_1.begin(), v_c_1.end());
     vertices_colors.insert(vertices_colors.end(), v_c_2.begin(), v_c_2.end());
