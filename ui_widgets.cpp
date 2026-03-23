@@ -6,7 +6,7 @@
 #include <QLineEdit>
 #include <QColorDialog>
 
-SliderStep::SliderStep(QWidget *parent): QDialog(parent){
+SliderStep::SliderStep(QWidget *parent): Slider(parent){
     setWindowTitle("Set grid scale");
     setModal(false); // do not block another window
 
@@ -26,7 +26,7 @@ SliderStep::SliderStep(QWidget *parent): QDialog(parent){
     layout->addWidget(m_slider);
 }
 
-SliderAlfa::SliderAlfa(QWidget *parent): QDialog(parent){
+SliderAlfa::SliderAlfa(QWidget *parent): Slider(parent){
     setWindowTitle("Set alfa");
     setModal(false); // do not block another window
 
