@@ -249,12 +249,12 @@ void CubeWindow:: rebuildBuffers(){
             ));
     }
 
-    auto v_c_1 = add_colors_and_normals(get_grid(p[0], p[1], p[2], p[3], N), colors, faceNormals[0], colors.size());
-    auto v_c_2 = add_colors_and_normals(get_grid(p[4], p[7], p[6], p[5], N), colors, faceNormals[1], colors.size());
-    auto v_c_3 = add_colors_and_normals(get_grid(p[4], p[0], p[3], p[7], N), colors, faceNormals[2], colors.size());
-    auto v_c_4 = add_colors_and_normals(get_grid(p[1], p[5], p[6], p[2], N), colors, faceNormals[3], colors.size());
-    auto v_c_5 = add_colors_and_normals(get_grid(p[4], p[5], p[1], p[0], N), colors, faceNormals[4], colors.size());
-    auto v_c_6 = add_colors_and_normals(get_grid(p[3], p[2], p[6], p[7], N), colors, faceNormals[5], colors.size());
+    auto v_c_1 = add_colors_and_normals(get_grid(p[0], p[1], p[2], p[3], N), colors, -faceNormals[0], colors.size());
+    auto v_c_2 = add_colors_and_normals(get_grid(p[4], p[7], p[6], p[5], N), colors, -faceNormals[1], colors.size());
+    auto v_c_3 = add_colors_and_normals(get_grid(p[4], p[0], p[3], p[7], N), colors, -faceNormals[2], colors.size());
+    auto v_c_4 = add_colors_and_normals(get_grid(p[1], p[5], p[6], p[2], N), colors, -faceNormals[3], colors.size());
+    auto v_c_5 = add_colors_and_normals(get_grid(p[4], p[5], p[1], p[0], N), colors, -faceNormals[4], colors.size());
+    auto v_c_6 = add_colors_and_normals(get_grid(p[3], p[2], p[6], p[7], N), colors, -faceNormals[5], colors.size());
 
     vertices_colors.insert(vertices_colors.end(), v_c_1.begin(), v_c_1.end());
     vertices_colors.insert(vertices_colors.end(), v_c_2.begin(), v_c_2.end());
@@ -266,22 +266,20 @@ void CubeWindow:: rebuildBuffers(){
 
     // fill indices
     for (size_t face = 0; face < 6; ++face) {
-        size_t offset = face * (N + 1) * (N + 1);
+        size_t offset = 2 * face * (N + 1);
         for (size_t i = 0; i < N; ++i) {
-            for (size_t j = 0; j < N; ++j) {
-                uint16_t a = offset + i * (N + 1) + j;
-                uint16_t b = offset + i * (N + 1) + (j + 1);
-                uint16_t c = offset + (i + 1) * (N + 1) + j;
-                uint16_t d = offset + (i + 1) * (N + 1) + (j + 1);
+            uint16_t top_left = offset + 2 * i;
+            uint16_t bottom_left = offset + 2 * i + 1;
+            uint16_t top_right = offset + 2 * (i + 1);
+            uint16_t bottom_right = offset + 2 * (i + 1) + 1;
 
-                indices.push_back(a);
-                indices.push_back(b);
-                indices.push_back(c);
+            indices.push_back(top_left);
+            indices.push_back(top_right);
+            indices.push_back(bottom_left);
 
-                indices.push_back(b);
-                indices.push_back(d);
-                indices.push_back(c);
-            }
+            indices.push_back(bottom_left);
+            indices.push_back(top_right);
+            indices.push_back(bottom_right);
         }
     }
 
@@ -428,37 +426,22 @@ CubeWindow::~CubeWindow()
 }
 
 std::vector<QVector3D> CubeWindow::get_grid(QVector3D v1, QVector3D v2,
-                                            QVector3D v3, QVector3D v4, size_t N) const{
-
+                                            QVector3D v3, QVector3D v4, size_t N) const {
     std::vector<QVector3D> res{};
 
-    auto v_1_norm = v1;
+    for (size_t col = 0; col <= N; ++col) {
+        float t = static_cast<float>(col) / N;
 
-    auto v_2_norm = v2;
+        QVector3D top = v1 + t * (v2 - v1);
+        QVector3D bottom = v4 + t * (v3 - v4);
 
-    auto v_4_norm = v4;
-
-    auto dx_1 = (v_2_norm - v_1_norm).x() / N;
-    auto dy_1 = (v_2_norm - v_1_norm).y() / N;
-    auto dz_1 = (v_2_norm - v_1_norm).z() / N;
-
-    auto dx_2 = (v_4_norm - v_1_norm).x() / N;
-    auto dy_2 = (v_4_norm - v_1_norm).y() / N;
-    auto dz_2 = (v_4_norm - v_1_norm).z() / N;
-
-    auto current_vec = v_1_norm;
-
-    for (size_t i = 0; i <= N; ++i) {
-        for (size_t j = 0; j <= N; ++j) {
-            QVector3D point = v_1_norm
-                              + j * QVector3D(dx_1, dy_1, dz_1)
-                              + i * QVector3D(dx_2, dy_2, dz_2);
-            res.push_back(point);
-        }
+        res.push_back(top);
+        res.push_back(bottom);
     }
 
     return res;
 }
+
 
 
 
