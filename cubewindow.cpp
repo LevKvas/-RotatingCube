@@ -152,6 +152,7 @@ void CubeWindow::initialize()
     m_matrixUniform = m_program->uniformLocation("matrix");
     m_matrixRotUniform = m_program->uniformLocation("rot_matrix");
     m_morphFactorUniform = m_program->uniformLocation("morphFactor");
+    m_SourceColorUniform = m_program->uniformLocation("source_color");
 
     if (m_matrixUniform == -1 || m_morphFactorUniform == -1) {
         qWarning() << "Failed to get uniform location!";
@@ -336,6 +337,8 @@ void CubeWindow::render()
     // to hand over position
     for (auto it = m_lights.begin(); it != m_lights.end(); ++it) {
         auto light = *it;
+        m_program->setUniformValue(m_SourceColorUniform, light->get_color()); // set source color
+
         if(light->who_is() == QString("Lamp")){
             m_program->setUniformValue(m_lampPosUniform, light->get_pos());
             m_program->setUniformValue("is_use_lamp", 1);

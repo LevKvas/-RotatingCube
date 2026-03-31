@@ -80,6 +80,9 @@ class LightSources: public QObject{
 public:
     void set_color();
     void set_pos();
+    QVector3D get_color(){
+        return color;
+    }
     void set_direction();
 
     void load_image();

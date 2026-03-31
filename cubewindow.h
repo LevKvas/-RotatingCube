@@ -117,6 +117,7 @@ private:
     GLint m_CameraPos = -1;
     GLint m_DirLightDirUniform = -1;
     GLint m_matrixRotUniform = -1;
+    GLint m_SourceColorUniform = -1;
 
     // use
     GLint m_lampIsUse = -1;

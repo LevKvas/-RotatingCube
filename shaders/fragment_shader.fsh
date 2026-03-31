@@ -9,6 +9,7 @@ uniform mat4 matrix;
 uniform int is_use_lamp;
 uniform int is_use_SpotLight;
 uniform int is_use_DirectionalLight;
+uniform vec3 source_color;
 
 // positions
 uniform vec3 posLamp;
@@ -46,7 +47,7 @@ void main() {
   float cosAlpha_lamp = max(dot(R_lamp, V), 0.0);
   float cosTheta_lamp = max(dot(N, L_lamp), 0.0);
 
-  I_lamp = f_att_lamp * col.rgb * (cosTheta_lamp + pow(cosAlpha_lamp, n));
+  I_lamp = f_att_lamp * col.rgb * source_color *  (cosTheta_lamp + pow(cosAlpha_lamp, n));
 
   // for SpotLight
   float d_SpotLight = length(PosSpotLight - worldPos);
@@ -66,7 +67,7 @@ void main() {
   float cosAlpha_spot = max(dot(R_SpotLight, V), 0.0);
   float cosTheta_spot = max(dot(N, L_SpotLight), 0.0);
 
-  I_spotLight = f_att_spotLight * col.rgb * (cosTheta_spot + pow(cosAlpha_spot, n));
+  I_spotLight = f_att_spotLight * col.rgb * source_color * (cosTheta_spot + pow(cosAlpha_spot, n));
 
   // for direct
   float f_att_direct = 1;
@@ -77,7 +78,7 @@ void main() {
   vec3 R_direct = reflect(-L_direct, N);
   float cosAlpha_direct = max(dot(R_direct, V), 0.0);
 
-  I_direct = f_att_direct * col.rgb * (cosTheta_direct + pow(cosAlpha_direct, n));
+  I_direct = f_att_direct * col.rgb * source_color * (cosTheta_direct + pow(cosAlpha_direct, n));
 
   fragColor = vec4(is_use_lamp * I_lamp + is_use_SpotLight * I_spotLight + is_use_DirectionalLight * I_direct + I_background, 1.0);
 }
