@@ -27,6 +27,8 @@ qt_add_executable(cube ${PROJECT_SOURCES}
     tools.h
     spotlight.qrc
     dir_light.qrc
+    textures.qrc
+
 )
 
 target_link_libraries(cube PRIVATE

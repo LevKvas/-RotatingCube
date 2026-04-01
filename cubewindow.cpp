@@ -152,6 +152,7 @@ void CubeWindow::initialize()
     m_matrixUniform = m_program->uniformLocation("matrix");
     m_matrixRotUniform = m_program->uniformLocation("rot_matrix");
     m_morphFactorUniform = m_program->uniformLocation("morphFactor");
+    m_SourceColorUniform = m_program->uniformLocation("source_color");
 
     if (m_matrixUniform == -1 || m_morphFactorUniform == -1) {
         qWarning() << "Failed to get uniform location!";
@@ -164,6 +165,35 @@ void CubeWindow::initialize()
     if (m_lampPosUniform == -1 || m_SpotLightPosUniform == -1) {
         qWarning() << "Failed to get Lights pos!";
     }
+
+    // load map of normals
+    QImage normalMapImage(":/new/prefix1/Earth_NormalMap.jpg");
+    if (normalMapImage.isNull()) {
+        qCritical() << "Failed to load normal map!";
+        return;
+    }
+
+    m_normalMapTexture = new QOpenGLTexture(normalMapImage);
+    m_normalMapTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+    m_normalMapTexture->setMagnificationFilter(QOpenGLTexture::Linear);
+    m_normalMapTexture->setWrapMode(QOpenGLTexture::Repeat);
+
+    m_normalMapUniform = m_program->uniformLocation("normalMap");
+
+    // load Earth
+    QImage earthTextureImage(":/new/prefix1/Earth_Albedo.jpg");
+    if (earthTextureImage.isNull()) {
+        qCritical() << "Failed to load Earth texture!";
+        return;
+    }
+
+    m_earthTexture = new QOpenGLTexture(earthTextureImage);
+    m_earthTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+    m_earthTexture->setMagnificationFilter(QOpenGLTexture::Linear);
+    m_earthTexture->setWrapMode(QOpenGLTexture::Repeat);
+
+    m_earthTextureUniform = m_program->uniformLocation("earthTexture");
+
 
     // hand over direction
     m_SpotLightDirUniform = m_program->uniformLocation("SpotLightDir");
@@ -184,9 +214,11 @@ std::vector<GLfloat> CubeWindow::add_colors_and_normals(
     std::vector<GLfloat> vertices_data{};
 
     for(size_t i = 0; i < grid.size(); ++i){
-        vertices_data.push_back(grid[i].x());
-        vertices_data.push_back(grid[i].y());
-        vertices_data.push_back(grid[i].z());
+        auto coors = grid[i];
+
+        vertices_data.push_back(coors.x());
+        vertices_data.push_back(coors.y());
+        vertices_data.push_back(coors.z());
 
 
         vertices_data.push_back(colors[i % color_size].x());
@@ -335,9 +367,20 @@ void CubeWindow::render()
     m_program->setUniformValue("is_use_SpotLight", 0);
     m_program->setUniformValue("is_use_DirectionalLight", 0);
 
+    // map of normals
+    glActiveTexture(GL_TEXTURE0);
+    m_normalMapTexture->bind();
+    m_program->setUniformValue(m_normalMapUniform, 0);
+
+    glActiveTexture(GL_TEXTURE1);
+    m_earthTexture->bind();
+    m_program->setUniformValue(m_earthTextureUniform, 1);
+
     // to hand over position
     for (auto it = m_lights.begin(); it != m_lights.end(); ++it) {
         auto light = *it;
+        m_program->setUniformValue(m_SourceColorUniform, light->get_color()); // set source color
+
         if(light->who_is() == QString("Lamp")){
             m_program->setUniformValue(m_lampPosUniform, light->get_pos());
             m_program->setUniformValue("is_use_lamp", 1);
@@ -361,13 +404,14 @@ void CubeWindow::render()
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
 
+    int stride = 9 * sizeof(GLfloat);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride,
                           reinterpret_cast<void *>(3 * sizeof(GLfloat))); // shift on 3 floats
 
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride,
                                 reinterpret_cast<void*>(6 * sizeof(GLfloat)));
 
 
@@ -423,6 +467,7 @@ CubeWindow::~CubeWindow()
 {
     delete m_vbo;
     delete m_ibo;
+    delete m_normalMapTexture;
 
     delete m_program;
 }
@@ -453,6 +498,7 @@ std::vector<QVector3D> CubeWindow::get_grid(QVector3D v1, QVector3D v2,
             QVector3D point = v_1_norm
                               + j * QVector3D(dx_1, dy_1, dz_1)
                               + i * QVector3D(dx_2, dy_2, dz_2);
+
             res.push_back(point);
         }
     }

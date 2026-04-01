@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/new/prefix1">
+        <file>Earth_Albedo.jpg</file>
+    </qresource>
+</RCC>

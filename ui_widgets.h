@@ -101,6 +101,10 @@ public:
 
     virtual QString who_is() = 0;
 
+    QVector3D get_color(){
+        return color;
+    }
+
 protected:
     QVector3D pos{};
     QVector3D color{};

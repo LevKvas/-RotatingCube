@@ -10,6 +10,7 @@
 #include <QLabel>
 #include <vector>
 #include <QSlider>
+#include <QOpenGLTexture>
 
 #include "ui_widgets.h"
 
@@ -117,6 +118,14 @@ private:
     GLint m_CameraPos = -1;
     GLint m_DirLightDirUniform = -1;
     GLint m_matrixRotUniform = -1;
+    GLint m_SourceColorUniform = -1;
+
+    // for map of normals
+    QOpenGLTexture* m_normalMapTexture = nullptr;
+    int m_normalMapUniform;
+
+    QOpenGLTexture* m_earthTexture = nullptr;
+    int m_earthTextureUniform;
 
     // use
     GLint m_lampIsUse = -1;
