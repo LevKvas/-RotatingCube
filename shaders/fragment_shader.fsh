@@ -23,11 +23,11 @@ uniform mat4 rot_matrix;
 uniform float morphFactor;
 
 // constants
-uniform float a = 0.1;
+uniform float a = 1;
 uniform float b = 0.1;
-uniform float c = 0.05;
+uniform float c = 1.0;
 
-uniform int n = 32; // degree of shiness
+uniform int n = 200; // degree of shiness
 
 void main() {
   vec3 N = normalize(normal); // normal of surface
@@ -43,7 +43,7 @@ void main() {
   float f_att_lamp = 1.0 / (a + b * d_lamp + c * d_lamp * d_lamp);
   vec3 L_lamp = normalize(posLamp - worldPos); // vector on Lamp
 
-  vec3 R_lamp = reflect(-L_lamp, N);
+  vec3 R_lamp = reflect(L_lamp, N);
   float cosAlpha_lamp = max(dot(R_lamp, V), 0.0);
   float cosTheta_lamp = max(dot(N, L_lamp), 0.0);
 
@@ -75,7 +75,7 @@ void main() {
 
   float cosTheta_direct = max(dot(N, L_direct), 0.0);
 
-  vec3 R_direct = reflect(-L_direct, N);
+  vec3 R_direct = reflect(L_direct, N);
   float cosAlpha_direct = max(dot(R_direct, V), 0.0);
 
   I_direct = f_att_direct * col.rgb * source_color * (cosTheta_direct + pow(cosAlpha_direct, n));
