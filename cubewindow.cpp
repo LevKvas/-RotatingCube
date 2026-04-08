@@ -179,6 +179,7 @@ void CubeWindow::initialize()
     m_normalMapTexture->setWrapMode(QOpenGLTexture::Repeat);
 
     m_normalMapUniform = m_program->uniformLocation("normalMap");
+    m_earthTextureUniform = m_program->uniformLocation("earthTexture");
 
     // load Earth
     QImage earthTextureImage(":/new/prefix1/Earth_Albedo.jpg");
@@ -353,7 +354,7 @@ void CubeWindow::render()
     matrix.translate(camera_pos);
 
     // mult single matrix on rotate matrix
-    matrix_rot.rotate(100.0f * m_frame / screen()->refreshRate(), axis[0], axis[1], axis[2]);
+    matrix_rot.rotate(10.0f * m_frame / screen()->refreshRate(), axis[0], axis[1], axis[2]);
 
     m_program->setUniformValue(m_matrixUniform, matrix);
     m_program->setUniformValue(m_matrixRotUniform, matrix_rot);

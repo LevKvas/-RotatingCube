@@ -34,34 +34,37 @@ uniform float c = 0.05;
 uniform int n = 32; // degree of shiness
 
 void main() {
-  //vec3 earthColor = texture2D(earthTexture, texCoord).rgb; // color of Earth
-  vec3 earthColor = vec3(1.0, 0.0, 0.0);
+  vec3 earthColor = texture2D(earthTexture, texCoord).rgb; // color of Earth
+  // earthColor *= 0.1;
+  // earthColor += vec3(0.9, 0.9, 0.9);
 
-  vec3 n = normalize(normal.xyz);
-  vec3 t = normalize(cross(n, vec3(1, 1, 1)));
-  vec3 b = cross(n, t);
-  vec3 normalMapValue = texture2D(normalMap, texCoord).rgb; // get normal from texture
+  vec3 N_geom = normalize(normal);
+  // Касательная для сферы
+  vec3 T = normalize(cross(vec3(0.0, 1.0, 0.0), N_geom));
+  if (length(T) < 0.001) T = vec3(1.0, 0.0, 0.0); // защита на полюсах
+  vec3 B = cross(N_geom, T);
 
-  vec3 normalFromMap = normalize(normalMapValue * 2.0 - 1.0); // to [-1;1]
+  vec3 mapNormal = texture2D(normalMap, texCoord).rgb * 2.0 - vec3(1, 1, 1);;
+
+  // Перевод из касательного пространства в мировое
+  vec3 N = normalize(T * mapNormal.x + B * mapNormal.y + N_geom * mapNormal.z);
+  vec3 V = normalize(CameraPos - worldPos);
 
   float specularIntensity = 0.3;
-
-  vec3 N = normalFromMap; // normal from map of normals
-  vec3 V = normalize(CameraPos - worldPos); // vector on camera
 
   vec3 I_lamp = vec3(0.0);
   vec3 I_spotLight = vec3(0.0);
   vec3 I_direct = vec3(0.0);
-  vec3 I_background = vec3(0.2); // some noise
+  vec3 I_background = earthColor * 0.005; // some noise
 
   // for lamp
-  float d_lamp = length(posLamp - worldPos);
+  highp float d_lamp = length(posLamp - worldPos);
   float f_att_lamp = 1.0 / (a + b * d_lamp + c * d_lamp * d_lamp);
   vec3 L_lamp = normalize(posLamp - worldPos); // vector on Lamp
 
   vec3 R_lamp = reflect(-L_lamp, N);
-  float cosAlpha_lamp = max(dot(R_lamp, V), 0.0);
-  float cosTheta_lamp = max(dot(N, L_lamp), 0.0);
+  highp float cosAlpha_lamp = max(dot(R_lamp, V), 0.0);
+  highp float cosTheta_lamp = max(dot(N, L_lamp), 0.0);
 
   float spec_lamp = 0.0;
   if (cosTheta_lamp > 0.0) {
@@ -96,13 +99,12 @@ void main() {
   }
 
   // for direct
-  float f_att_direct = 1;
+  float f_att_direct = 1.0 / 256;
   vec3 L_direct = normalize(-DirLightDir);
 
   float cosTheta_direct = max(dot(N, L_direct), 0.0);
 
   vec3 R_direct = reflect(-L_direct, N);
-  float cosAlpha_direct = max(dot(R_direct, V), 0.0);
 
   float spec_direct = 0.0;
   if (cosTheta_direct > 0.0) {
@@ -114,4 +116,6 @@ void main() {
   I_direct = f_att_direct * earthColor * source_color * (cosTheta_direct + specularIntensity * spec_direct);
 
   fragColor = vec4(is_use_lamp * I_lamp + is_use_SpotLight * I_spotLight + is_use_DirectionalLight * I_direct + I_background, 1.0);
+
+  //fragColor= vec4(source_color * (cosTheta_direct + specularIntensity * spec_direct) / 256.0, 1.0);
 }

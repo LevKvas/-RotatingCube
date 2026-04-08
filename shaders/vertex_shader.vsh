@@ -23,7 +23,7 @@ void main() {
 
   // === uv to sphere coordinates ===
   float u = 0.5 + atan(spherePos.x, spherePos.z) / (2.0 * 3.14159265); // longitude
-  float v = 0.5 - asin(spherePos.y) / 3.14159265; // latitude
+  float v = acos(spherePos.y) / (3.14159265); // latitude
   texCoord = vec2(clamp(u, 0.0, 1.0), clamp(v, 0.0, 1.0));
 
   vec4 temp = (rot_matrix * vec4(morphedPos, 1.0)); // mult on rot matrix
